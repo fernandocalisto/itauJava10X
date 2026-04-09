@@ -1,4 +1,4 @@
-package dev.calistofernando.itauJava10x;
+package dev.calistofernando.itauJava10x.transacao;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
