@@ -1,6 +1,5 @@
 package dev.calistofernando.itauJava10x.estatistica;
 
-import dev.calistofernando.itauJava10x.transacao.Transacao;
 import dev.calistofernando.itauJava10x.transacao.TransacaoRepository;
 import dev.calistofernando.itauJava10x.transacao.TransacaoRequestDTO;
 import lombok.RequiredArgsConstructor;
@@ -11,6 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.OffsetDateTime;
 import java.util.Comparator;
 
 @RestController
@@ -20,18 +20,15 @@ import java.util.Comparator;
 public class EstatisticasController {
 
     private final TransacaoRepository transacaoRepository;
-    private final EsatisticaProperties esatisticaProperties;
+    private final EstatisticasProperties estatisticasProperties;
 
     @GetMapping
-    public ResponseEntity<EstatisticaDTO> getEstatisticas () {
+    public ResponseEntity<EstatisticaDTO> Estatisticas () {
 
-        Long count = (long) transacaoRepository.getListaDeTransacoes().size();
-        BigDecimal sum = transacaoRepository.getListaDeTransacoes().stream().map(TransacaoRequestDTO::getValor).reduce(BigDecimal.ZERO, BigDecimal::add);
-        BigDecimal avg = sum.divide(BigDecimal.valueOf(count), 2, RoundingMode.HALF_UP);
-        BigDecimal max = transacaoRepository.getListaDeTransacoes().stream().map(TransacaoRequestDTO::getValor).max(Comparator.naturalOrder()).orElse(BigDecimal.ZERO);
-        BigDecimal min = transacaoRepository.getListaDeTransacoes().stream().map(TransacaoRequestDTO::getValor).min(Comparator.naturalOrder()).orElse(BigDecimal.ZERO);
+        final var horaAtual = OffsetDateTime.now()
+                .minusSeconds(estatisticasProperties.segundos());
 
-        EstatisticaDTO estatisticaDTO = new EstatisticaDTO(count, sum, avg, min, max);
+        EstatisticaDTO estatisticaDTO = transacaoRepository.estatistica(horaAtual);
 
         return  ResponseEntity.ok(estatisticaDTO);
     }
